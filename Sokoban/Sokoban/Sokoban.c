@@ -4,11 +4,15 @@
 #include <conio.h>	
 #include <windows.h>
 
+
+
+#define ESC 27
 #define UP 72
 #define LEFT 75
 #define RIGHT 77
 #define DOWN 80
-#define 
+#define SPACE 32
+#define MAXSTAGE 2
 
 void GotoXY(int x, int y)
 {
@@ -19,10 +23,84 @@ void GotoXY(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
 }
 
-#define WIDTH 11
-#define HEIGHT 11
+
+
+//title Screen =====================================================================================
+//void LoadingStage()
+//{
+//	int i;
+//	for (i = 0; i < 45; i++)
+//	{
+//		GotoXY(10 + i, 5);
+//		printf('-');
+//		sleep(10);
+//	}
+//	for (i = 0; i < 45; i++)
+//	{
+//		GotoXY(70-i, 10);
+//		printf('-');
+//		sleep(10);
+//	}
+//
+//	sleep(800);
+//	GotoXY(35, 7);
+//	printf("소");
+//	sleep(600);
+//	GotoXY(38, 7);
+//	printf("코");
+//	sleep(600);
+//	GotoXY(41, 7);
+//	printf("반");
+//	sleep(600);
+//	GotoXY(48, 8);
+//	printf('M');
+//	sleep(40);
+//	GotoXY(49, 8);
+//	printf('a');
+//	sleep(40);
+//	GotoXY(50, 8);
+//	printf('d');
+//	sleep(40);
+//	GotoXY(51, 8);
+//	printf('e');
+//	sleep(40);
+//	GotoXY(53, 8);
+//	printf('b');
+//	GotoXY(54, 8);
+//	printf('y');
+//	sleep(40);
+//	GotoXY(56, 8);
+//	printf("남형우");
+//
+//	sleep(2500);
+//}
+//====================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#define WIDTH 21
+#define HEIGHT 21
 
 char map[WIDTH][HEIGHT];
+
 
 typedef struct Player
 {
@@ -30,61 +108,71 @@ typedef struct Player
 	int y;
 	const char* shape;
 
-}Player;
+}Player; //플레이어 좌표
 
 void CreateMaze()
 {
 	// 0 : 빈 공간 (" ") -> but 특수 문자가 2byte이므로 2번 띄어줘야한다.
 	// 1 : 벽 (▩)
 	// 2 : 상자 (▤)
-	// 3 : 플레이어 (0)
-	// 4 : 상자를 옮겨야 하는 목표점(◎)
+	// 3 : 플레이어 ()
+	// 4 : 상자를 옮겨야 하는 목표점(★)
 
-	strcpy(map[0], "1111111111");
-	strcpy(map[1], "1000100001");
-	strcpy(map[2], "1110001101");
-	strcpy(map[3], "1110101001");
-	strcpy(map[4], "1000101111");
-	strcpy(map[5], "1010100001");
-	strcpy(map[6], "1110111101");
-	strcpy(map[7], "1000001001");
-	strcpy(map[8], "1011101111");
-	strcpy(map[9], "1000100021");
-	strcpy(map[10], "1111111111");
+	strcpy(map[0],  "11111111111111111111");
+	strcpy(map[1],  "11111111111111111111");
+	strcpy(map[2],  "11111111111111111111");
+	strcpy(map[3],  "11111111111111111111");
+	strcpy(map[4],  "11111111111111111111");
+	strcpy(map[5],  "11111111111111111111");
+	strcpy(map[6],  "11111111111111111111");
+	strcpy(map[7],  "11111111102111111111");
+	strcpy(map[8],  "11111111000011111111");
+	strcpy(map[9],  "11111100003000111111");
+	strcpy(map[10], "11112000340300021111");
+	strcpy(map[11], "11111100003000111111");
+	strcpy(map[12], "11111111000011111111");
+	strcpy(map[13], "11111111120111111111");
+	strcpy(map[14], "11111111111111111111");
+	strcpy(map[15], "11111111111111111111");
+	strcpy(map[15], "11111111111111111111");
+	strcpy(map[16], "11111111111111111111");
+	strcpy(map[17], "11111111111111111111");
+	strcpy(map[18], "11111111111111111111");
+	strcpy(map[19], "11111111111111111111");
+	strcpy(map[20], "11111111111111111111");
+
+
+
+
 }
 
 void Render()
-{
+{	
 	for (int i = 0; i < WIDTH; i++)
 	{
 		for (int j = 0; j < HEIGHT; j++) {
-			switch (maze[i][j])
+			//'0'은 공백
+			//'1'은 벽
+			//'2'는 목표점
+			//'3'은 상자
+			//'4'는 플레이어
+			switch (map[i][j])
 			{
 			case '0':
 				printf("  ");
 				break;
 			case '1':
-				printf("■");
+				printf("▩");
 				break;
 			case '2':
-				printf("◎");
+				printf("★");
+				break;
+			case '3':
+				printf("■");
 				break;
 			default:
 				break;
 			}
-			/*if (maze[i][j] == '0')
-			{
-				printf("  ");
-			}
-			else if (maze[i][j] == '1')
-			{
-				printf("■");
-			}
-			else if  (maze[i][j] == '2')
-			{
-				printf("◎");
-			}*/
-			//	printf("%c", maze[i][j]);		//이 때 maze는 숫자가 아닌 문자열이므로 %c를 써야함
 		}
 		printf("\n");
 	}
@@ -131,23 +219,28 @@ void Keyboard(char map[WIDTH][HEIGHT], Player* player)
 
 int main() 
 {
-	Player player = {2,1,"ㅁ"};
+	
+	//LoadingStage();
+
+
+
+	Player player = {18,10,"♠"};
 
 	// 1. 맵 데이터를 생성합니다.
-	CreateMaze();
+	createmaze();
 
 	while (1)
 	{
-		// 2. 맵 데이터에 있는 정보를 토대로 출력합니다.
-		Render();
+	// 2. 맵 데이터에 있는 정보를 토대로 출력합니다.
+	render();
 
-		Keyboard(map, &player);	//map[][]가 하나의 포인터라고 해당된다. maze가 Keyboard 함수의 char 
+	keyboard(map, &player);	//map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
 
-		GotoXY(player.x, player.y);
-		printf("%s", player.shape);
+	GotoXY(player.x, player.y);
+	printf("%s", player.shape);
 
-		Sleep(100);
-		system("cls");
+	sleep(100);
+	system("cls");
 	}
 	return 0;
 }
