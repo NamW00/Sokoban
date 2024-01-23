@@ -23,78 +23,94 @@ void GotoXY(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
 }
 
-
-
-//title Screen =====================================================================================
-//void LoadingStage()
-//{
-//	int i;
-//	for (i = 0; i < 45; i++)
-//	{
-//		GotoXY(10 + i, 5);
-//		printf('-');
-//		sleep(10);
-//	}
-//	for (i = 0; i < 45; i++)
-//	{
-//		GotoXY(70-i, 10);
-//		printf('-');
-//		sleep(10);
-//	}
-//
-//	sleep(800);
-//	GotoXY(35, 7);
-//	printf("소");
-//	sleep(600);
-//	GotoXY(38, 7);
-//	printf("코");
-//	sleep(600);
-//	GotoXY(41, 7);
-//	printf("반");
-//	sleep(600);
-//	GotoXY(48, 8);
-//	printf('M');
-//	sleep(40);
-//	GotoXY(49, 8);
-//	printf('a');
-//	sleep(40);
-//	GotoXY(50, 8);
-//	printf('d');
-//	sleep(40);
-//	GotoXY(51, 8);
-//	printf('e');
-//	sleep(40);
-//	GotoXY(53, 8);
-//	printf('b');
-//	GotoXY(54, 8);
-//	printf('y');
-//	sleep(40);
-//	GotoXY(56, 8);
-//	printf("남형우");
-//
-//	sleep(2500);
-//}
-//====================================================================
+void TextColor(int colorNum) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNum);
+}
+enum ColorType {
+	BLACK = 0,  	//0
+	darkBLUE=1,		//1
+	DarkGreen=2,	//2
+	darkSkyBlue=3,  //3
+	DarkRed=4,  	//4
+	DarkPurple=5,	//5
+	DarkYellow=6,	//6
+	GRAY=7,			//7
+	DarkGray=8,		//8
+	BLUE=9,			//9
+	GREEN=10,		//10
+	SkyBlue=11,		//11
+	RED=12,			//12
+	PURPLE=13,		//13
+	YELLOW=14,		//14
+	WHITE=15		//15
+} COLOR;
 
 
 
+/*title Screen =====================================================================================*/
+void LoadingStage()
+{
+	int i;
 
+	for (i = 0; i < 45; i++)
+	{
+		GotoXY(10 + i, 5);
+		TextColor(1);
+		printf("-");
+		Sleep(10);
+	}
 
+	for (i = 0; i < 45; i++)
+	{
+		GotoXY(70 - i, 10);
+		printf("-");
+		Sleep(10);
+	}
 
+	Sleep(800);
+	GotoXY(35, 7);
+	printf("소");
 
+	Sleep(600);
+	GotoXY(38, 7);
+	printf("코");
 
+	Sleep(600);
+	GotoXY(41, 7);
+	printf("반");
 
+	Sleep(600);
+	GotoXY(48, 8);
+	printf("M");
 
+	Sleep(40);
+	GotoXY(49, 8);
+	printf("a");
 
+	Sleep(40);
+	GotoXY(50, 8);
+	printf("d");
 
+	Sleep(40);
+	GotoXY(51, 8);
+	printf("e");
 
+	Sleep(40);
+	GotoXY(53, 8);
+	printf("b");
 
+	Sleep(40);
+	GotoXY(54, 8);
+	printf("y");
 
+	Sleep(40);
+	GotoXY(56, 8);
+	printf("남형우");
 
+	Sleep(2500);
+}
 
-
-
-
+/*====================================================================*/
 
 #define WIDTH 21
 #define HEIGHT 21
@@ -118,28 +134,28 @@ void CreateMaze()
 	// 3 : 플레이어 ()
 	// 4 : 상자를 옮겨야 하는 목표점(★)
 
-	strcpy(map[0],  "11111111111111111111");
-	strcpy(map[1],  "11111111111111111111");
-	strcpy(map[2],  "11111111111111111111");
-	strcpy(map[3],  "11111111111111111111");
-	strcpy(map[4],  "11111111111111111111");
-	strcpy(map[5],  "11111111111111111111");
-	strcpy(map[6],  "11111111111111111111");
-	strcpy(map[7],  "11111111102111111111");
-	strcpy(map[8],  "11111111000011111111");
-	strcpy(map[9],  "11111100003000111111");
-	strcpy(map[10], "11112000340300021111");
-	strcpy(map[11], "11111100003000111111");
-	strcpy(map[12], "11111111000011111111");
-	strcpy(map[13], "11111111120111111111");
-	strcpy(map[14], "11111111111111111111");
-	strcpy(map[15], "11111111111111111111");
-	strcpy(map[15], "11111111111111111111");
-	strcpy(map[16], "11111111111111111111");
-	strcpy(map[17], "11111111111111111111");
-	strcpy(map[18], "11111111111111111111");
-	strcpy(map[19], "11111111111111111111");
-	strcpy(map[20], "11111111111111111111");
+	strcpy(map[0],  "00000000000000000000");
+	strcpy(map[1],  "00000000000000000000");
+	strcpy(map[2],  "00000000000000000000");
+	strcpy(map[3],  "00000000000000000000");
+	strcpy(map[4],  "00000000111100000000");
+	strcpy(map[5],  "00000011111111000000");
+	strcpy(map[6],  "00001111102111110000");
+	strcpy(map[7],  "00011111000011111000");
+	strcpy(map[8],  "01111100030000111110");
+	strcpy(map[9],  "11112000300300021111");
+	strcpy(map[10], "01111100003000111110");
+	strcpy(map[11], "00011111000011111000");
+	strcpy(map[12], "00001111102111110000");
+	strcpy(map[13], "00000011111111000000");
+	strcpy(map[14], "00000000111100000000");
+	strcpy(map[15], "00000000000000000000");
+	strcpy(map[15], "00000000000000000000");
+	strcpy(map[16], "00000000000000000000");
+	strcpy(map[17], "00000000000000000000");
+	strcpy(map[18], "00000000000000000000");
+	strcpy(map[19], "00000000000000000000");
+	strcpy(map[20], "00000000000000000000");
 
 
 
@@ -155,7 +171,6 @@ void Render()
 			//'1'은 벽
 			//'2'는 목표점
 			//'3'은 상자
-			//'4'는 플레이어
 			switch (map[i][j])
 			{
 			case '0':
@@ -165,7 +180,7 @@ void Render()
 				printf("▩");
 				break;
 			case '2':
-				printf("★");
+				printf("◎");
 				break;
 			case '3':
 				printf("■");
@@ -208,39 +223,39 @@ void Keyboard(char map[WIDTH][HEIGHT], Player* player)
 		}
 	}
 }
-
-
-
-
-
-
-
+void CursorView()
+{
+	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+	cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
+	cursorInfo.bVisible = FALSE; //커서 Visible TRUE(보임) FALSE(숨김)
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
 
 
 int main() 
 {
 	
-	//LoadingStage();
+	CursorView();
+	
+	LoadingStage();
 
-
-
-	Player player = {18,10,"♠"};
-
-	// 1. 맵 데이터를 생성합니다.
-	createmaze();
-
+	Player player = { 18,10,"☆" };
+	CreateMaze();// 맵 데이터를 생성합니다.
+	Render();
 	while (1)
 	{
-	// 2. 맵 데이터에 있는 정보를 토대로 출력합니다.
-	render();
+		Render(); // 맵 데이터에 있는 정보를 토대로 출력합니다.
 
-	keyboard(map, &player);	//map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
+		Keyboard(map, &player);	// map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
 
-	GotoXY(player.x, player.y);
-	printf("%s", player.shape);
+		GotoXY(player.x, player.y);
+		printf("%s", player.shape);
 
-	sleep(100);
-	system("cls");
+		Sleep(100);
+		system("cls");
 	}
+	
+
+	
 	return 0;
 }

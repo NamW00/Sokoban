@@ -1,10 +1,2 @@
 ﻿  Sokoban.c
-C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\Sokoban.c(230,2): warning C4013: 'createmaze' undefined; assuming extern returning int
-C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\Sokoban.c(235,2): warning C4013: 'render' undefined; assuming extern returning int
-C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\Sokoban.c(237,2): warning C4013: 'keyboard' undefined; assuming extern returning int
-C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\Sokoban.c(242,2): warning C4013: 'sleep' undefined; assuming extern returning int
-Sokoban.obj : error LNK2019: unresolved external symbol createmaze referenced in function main
-Sokoban.obj : error LNK2019: unresolved external symbol render referenced in function main
-Sokoban.obj : error LNK2019: unresolved external symbol keyboard referenced in function main
-Sokoban.obj : error LNK2019: unresolved external symbol sleep referenced in function main
-C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\x64\Debug\Sokoban.exe : fatal error LNK1120: 4 unresolved externals
+  Sokoban.vcxproj -> C:\Users\Administrator\Desktop\Sokoban\Sokoban\Sokoban\Sokoban\x64\Debug\Sokoban.exe
