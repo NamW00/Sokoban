@@ -3,6 +3,7 @@
 #include <string.h>
 #include <conio.h>	
 #include <windows.h>
+#include <stdlib.h> //exit();
 
 
 
@@ -66,7 +67,8 @@ void LoadingStage()
 		printf("-");
 		Sleep(10);
 	}
-
+	
+	TextColor(12);
 	Sleep(800);
 	GotoXY(35, 7);
 	printf("소");
@@ -126,13 +128,23 @@ typedef struct Player
 
 }Player; //플레이어 좌표
 
+
+typedef struct Box
+{
+	int x;
+	int y;
+	const char* shape;
+
+}Box; //박스 좌표
+
+
+
 void CreateMaze()
 {
 	// 0 : 빈 공간 (" ") -> but 특수 문자가 2byte이므로 2번 띄어줘야한다.
 	// 1 : 벽 (▩)
-	// 2 : 상자 (▤)
-	// 3 : 플레이어 ()
-	// 4 : 상자를 옮겨야 하는 목표점(★)
+	// 2 : 상자를 옮겨야 하는 목표점(★)
+	// 3 : 상자 (▤)
 
 	strcpy(map[0],  "00000000000000000000");
 	strcpy(map[1],  "00000000000000000000");
@@ -142,9 +154,9 @@ void CreateMaze()
 	strcpy(map[5],  "00000011111111000000");
 	strcpy(map[6],  "00001111102111110000");
 	strcpy(map[7],  "00011111000011111000");
-	strcpy(map[8],  "01111100030000111110");
-	strcpy(map[9],  "11112000300300021111");
-	strcpy(map[10], "01111100003000111110");
+	strcpy(map[8],  "01111100000000111110");
+	strcpy(map[9],  "11112000000000021111");
+	strcpy(map[10], "01111100000000111110");
 	strcpy(map[11], "00011111000011111000");
 	strcpy(map[12], "00001111102111110000");
 	strcpy(map[13], "00000011111111000000");
@@ -161,7 +173,6 @@ void CreateMaze()
 
 
 }
-
 void Render()
 {	
 	for (int i = 0; i < WIDTH; i++)
@@ -177,13 +188,12 @@ void Render()
 				printf("  ");
 				break;
 			case '1':
+				TextColor(14);
 				printf("▩");
 				break;
 			case '2':
+				TextColor(12);
 				printf("◎");
-				break;
-			case '3':
-				printf("■");
 				break;
 			default:
 				break;
@@ -194,7 +204,7 @@ void Render()
 
 }
 
-void Keyboard(char map[WIDTH][HEIGHT], Player* player)
+void MovePlayer(char map[WIDTH][HEIGHT], Player* player)
 {
 	char key = 0;
 
@@ -202,9 +212,11 @@ void Keyboard(char map[WIDTH][HEIGHT], Player* player)
 	{
 
 		key = _getch();	// key 입력을 받아주는 함수
-
+		if (key == ESC)
+		{
+			exit(0);
+		}
 		system("cls");
-
 		if (key == -32)
 		{
 			key = _getch();
@@ -213,17 +225,18 @@ void Keyboard(char map[WIDTH][HEIGHT], Player* player)
 		switch (key)
 		{
 		case UP: if (map[player->y - 1][player->x / 2] != '1') { player->y--; }
-			   break;
+				 break;
 		case LEFT: if (map[player->y][player->x / 2 - 1] != '1') { player->x -= 2; }
-				 break;
+				   break;
 		case RIGHT: if (map[player->y][player->x / 2 + 1] != '1') { player->x += 2; }
-				  break;
+					break;
 		case DOWN: if (map[player->y + 1][player->x / 2] != '1') { player->y++; }
-				 break;
+				   break;
 		}
+
 	}
 }
-void CursorView()
+void ViewCursor()
 {
 	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
 	cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
@@ -232,21 +245,37 @@ void CursorView()
 }
 
 
+
+
 int main() 
 {
 	
-	CursorView();
+	ViewCursor(); // 커서 없애는 함수
 	
-	LoadingStage();
+	LoadingStage(); // 로딩창 생성
 
-	Player player = { 18,10,"☆" };
-	CreateMaze();// 맵 데이터를 생성합니다.
-	Render();
+	Player player = { 18, 10, "☆"}; //플레이어 생성
+	
+	Box box[4]; //박스 좌표 초기화
+	for (int i = 0; i < 4; i++)
+	{
+		box[i].x = 0;
+		box[i].y = 0;
+		box[i].shape = "■";
+	} 
+
+	
+
+
+
+	CreateMaze(); // 맵 데이터를 생성합니다.
+	
 	while (1)
 	{
 		Render(); // 맵 데이터에 있는 정보를 토대로 출력합니다.
+		MovePlayer(map, &player);	// map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
 
-		Keyboard(map, &player);	// map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
+
 
 		GotoXY(player.x, player.y);
 		printf("%s", player.shape);
@@ -259,3 +288,4 @@ int main()
 	
 	return 0;
 }
+
