@@ -1,291 +1,440 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
-#include <conio.h>	
-#include <windows.h>
-#include <stdlib.h> //exit();
+#include <conio.h>	//getch()
+#include <windows.h> 
 
+void gotoxy(int x, int y)
+{
+    // x, y 좌표 설정
+    COORD position = { x, y };
 
-
-#define ESC 27
-#define UP 72
+    // 커서 이동 함수
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
+}
 #define LEFT 75
 #define RIGHT 77
+#define UP 72
 #define DOWN 80
-#define SPACE 32
-#define MAXSTAGE 2
+#define MAXSTAGE 3
 
-void GotoXY(int x, int y)
+
+char map[18][21];
+int nStage;
+int nx, ny;
+int nMove;
+
+char CreateMap[MAXSTAGE][18][21] = {
+     {
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "#####   ############",
+
+     "#####O  ############",
+
+     "#####  O############",
+
+     "###  O O ###########",
+
+     "### # ## ###########",
+
+     "#   # ## #####  ..##",
+
+     "# O  O   @      ..##",
+
+     "##### ### # ##  ..##",
+
+     "#####     ##########",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################"
+
+     },
+     {
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####..  #     ######",
+
+     "####..  # O  O  ####",
+
+     "####..  #O####  ####",
+
+     "####..    @ ##  ####",
+
+     "####..  # #  O #####",
+
+     "######### ##O O ####",
+
+     "###### O  O O O ####",
+
+     "######    #     ####",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################"
+
+     },
+     {
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "##########     @####",
+
+     "########## O#O #####",
+
+     "########## O  O#####",
+
+     "###########O O #####",
+
+     "########## O # #####",
+
+     "##....  ## O  O  ###",
+
+     "###...    O  O   ###",
+
+     "##....  ############",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################",
+
+     "####################"
+
+     },
+};
+
+void HideCursor()
 {
-	// x, y 좌표 설정
-	COORD position = { x, y };
-
-	// 커서 이동 함수
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
-}
-
-void TextColor(int colorNum) {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNum);
-}
-enum ColorType {
-	BLACK = 0,  	//0
-	darkBLUE=1,		//1
-	DarkGreen=2,	//2
-	darkSkyBlue=3,  //3
-	DarkRed=4,  	//4
-	DarkPurple=5,	//5
-	DarkYellow=6,	//6
-	GRAY=7,			//7
-	DarkGray=8,		//8
-	BLUE=9,			//9
-	GREEN=10,		//10
-	SkyBlue=11,		//11
-	RED=12,			//12
-	PURPLE=13,		//13
-	YELLOW=14,		//14
-	WHITE=15		//15
-} COLOR;
-
-
-
-/*title Screen =====================================================================================*/
-void LoadingStage()
-{
-	int i;
-
-	for (i = 0; i < 45; i++)
-	{
-		GotoXY(10 + i, 5);
-		TextColor(1);
-		printf("-");
-		Sleep(10);
-	}
-
-	for (i = 0; i < 45; i++)
-	{
-		GotoXY(70 - i, 10);
-		printf("-");
-		Sleep(10);
-	}
-	
-	TextColor(12);
-	Sleep(800);
-	GotoXY(35, 7);
-	printf("소");
-
-	Sleep(600);
-	GotoXY(38, 7);
-	printf("코");
-
-	Sleep(600);
-	GotoXY(41, 7);
-	printf("반");
-
-	Sleep(600);
-	GotoXY(48, 8);
-	printf("M");
-
-	Sleep(40);
-	GotoXY(49, 8);
-	printf("a");
-
-	Sleep(40);
-	GotoXY(50, 8);
-	printf("d");
-
-	Sleep(40);
-	GotoXY(51, 8);
-	printf("e");
-
-	Sleep(40);
-	GotoXY(53, 8);
-	printf("b");
-
-	Sleep(40);
-	GotoXY(54, 8);
-	printf("y");
-
-	Sleep(40);
-	GotoXY(56, 8);
-	printf("남형우");
-
-	Sleep(2500);
-}
-
-/*====================================================================*/
-
-#define WIDTH 21
-#define HEIGHT 21
-
-char map[WIDTH][HEIGHT];
-
-
-typedef struct Player
-{
-	int x;
-	int y;
-	const char* shape;
-
-}Player; //플레이어 좌표
-
-
-typedef struct Box
-{
-	int x;
-	int y;
-	const char* shape;
-
-}Box; //박스 좌표
-
-
-
-void CreateMaze()
-{
-	// 0 : 빈 공간 (" ") -> but 특수 문자가 2byte이므로 2번 띄어줘야한다.
-	// 1 : 벽 (▩)
-	// 2 : 상자를 옮겨야 하는 목표점(★)
-	// 3 : 상자 (▤)
-
-	strcpy(map[0],  "00000000000000000000");
-	strcpy(map[1],  "00000000000000000000");
-	strcpy(map[2],  "00000000000000000000");
-	strcpy(map[3],  "00000000000000000000");
-	strcpy(map[4],  "00000000111100000000");
-	strcpy(map[5],  "00000011111111000000");
-	strcpy(map[6],  "00001111102111110000");
-	strcpy(map[7],  "00011111000011111000");
-	strcpy(map[8],  "01111100000000111110");
-	strcpy(map[9],  "11112000000000021111");
-	strcpy(map[10], "01111100000000111110");
-	strcpy(map[11], "00011111000011111000");
-	strcpy(map[12], "00001111102111110000");
-	strcpy(map[13], "00000011111111000000");
-	strcpy(map[14], "00000000111100000000");
-	strcpy(map[15], "00000000000000000000");
-	strcpy(map[15], "00000000000000000000");
-	strcpy(map[16], "00000000000000000000");
-	strcpy(map[17], "00000000000000000000");
-	strcpy(map[18], "00000000000000000000");
-	strcpy(map[19], "00000000000000000000");
-	strcpy(map[20], "00000000000000000000");
-
-
-
-
-}
-void Render()
-{	
-	for (int i = 0; i < WIDTH; i++)
-	{
-		for (int j = 0; j < HEIGHT; j++) {
-			//'0'은 공백
-			//'1'은 벽
-			//'2'는 목표점
-			//'3'은 상자
-			switch (map[i][j])
-			{
-			case '0':
-				printf("  ");
-				break;
-			case '1':
-				TextColor(14);
-				printf("▩");
-				break;
-			case '2':
-				TextColor(12);
-				printf("◎");
-				break;
-			default:
-				break;
-			}
-		}
-		printf("\n");
-	}
-
-}
-
-void MovePlayer(char map[WIDTH][HEIGHT], Player* player)
-{
-	char key = 0;
-
-	if (_kbhit()) //키보드 입력확인 (true/false)
-	{
-
-		key = _getch();	// key 입력을 받아주는 함수
-		if (key == ESC)
-		{
-			exit(0);
-		}
-		system("cls");
-		if (key == -32)
-		{
-			key = _getch();
-		}
-
-		switch (key)
-		{
-		case UP: if (map[player->y - 1][player->x / 2] != '1') { player->y--; }
-				 break;
-		case LEFT: if (map[player->y][player->x / 2 - 1] != '1') { player->x -= 2; }
-				   break;
-		case RIGHT: if (map[player->y][player->x / 2 + 1] != '1') { player->x += 2; }
-					break;
-		case DOWN: if (map[player->y + 1][player->x / 2] != '1') { player->y++; }
-				   break;
-		}
-
-	}
-}
+    CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+    cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
+    cursorInfo.bVisible = FALSE; //커서 Visible TRUE(보임) FALSE(숨김)
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}   //커서 숨기기
 void ViewCursor()
 {
-	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
-	cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
-	cursorInfo.bVisible = FALSE; //커서 Visible TRUE(보임) FALSE(숨김)
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
-}
+    CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+    cursorInfo.dwSize = 20; //커서 굵기 (1 ~ 100)
+    cursorInfo.bVisible = TRUE; //커서 Visible TRUE(보임) FALSE(숨김)
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}   //커서 보여주기
 
 
+void DrawScreen()
 
-
-int main() 
 {
-	
-	ViewCursor(); // 커서 없애는 함수
-	
-	LoadingStage(); // 로딩창 생성
 
-	Player player = { 18, 10, "☆"}; //플레이어 생성
-	
-	Box box[4]; //박스 좌표 초기화
-	for (int i = 0; i < 4; i++)
-	{
-		box[i].x = 0;
-		box[i].y = 0;
-		box[i].shape = "■";
-	} 
+    int x, y;
 
-	
+    for (y = 0; y < 18; y++)
+    {
+        for (x = 0; x < 20; x++)
+        {
+            gotoxy(x, y);
+            printf('%c', map[y][x]);
+        }
 
+    }
 
-
-	CreateMaze(); // 맵 데이터를 생성합니다.
-	
-	while (1)
-	{
-		Render(); // 맵 데이터에 있는 정보를 토대로 출력합니다.
-		MovePlayer(map, &player);	// map[][]가 하나의 포인터라고 해당된다. maze가 keyboard 함수의 char 
+    gotoxy(nx, ny);
+    printf('@');
 
 
 
-		GotoXY(player.x, player.y);
-		printf("%s", player.shape);
 
-		Sleep(100);
-		system("cls");
-	}
-	
+    gotoxy(40, 2); puts("SOKOBAN");
 
-	
-	return 0;
+    gotoxy(40, 4); puts("Q:종료, R:다시 시작");
+
+    gotoxy(40, 6); puts("N:다음, P:이전");
+
+    gotoxy(40, 8); printf("스테이지 : %d", nStage + 1);
+
+    gotoxy(40, 10); printf("이동 회수 : %d", nMove);
+
 }
+BOOL TestEnd()
+
+{
+
+    int x, y;
+
+
+
+    for (y = 0; y < 18; y++) {
+
+        for (x = 0; x < 20; x++) {
+
+            if (CreateMap[nStage][y][x] == '.' && map[y][x] != 'O') {
+
+                return FALSE;
+
+            }
+
+        }
+
+    }
+
+    return TRUE;
+
+}
+void Move(int dir)
+
+{
+
+    int dx = 0, dy = 0;
+
+
+
+    switch (dir) {
+
+    case LEFT:
+
+        dx = -1;
+
+        break;
+
+    case RIGHT:
+
+        dx = 1;
+
+        break;
+
+    case UP:
+
+        dy = -1;
+
+        break;
+
+    case DOWN:
+
+        dy = 1;
+
+        break;
+
+    }
+
+
+
+    if (map[ny + dy][nx + dx] != '#') {
+
+        if (map[ny + dy][nx + dx] == 'O') {
+
+            if (map[ny + dy * 2][nx + dx * 2] == ' ' || map[ny + dy * 2][nx + dx * 2] == '.') {
+
+                if (CreateMap[nStage][ny + dy][nx + dx] == '.') {
+
+                    map[ny + dy][nx + dx] = '.';
+
+                }
+                else {
+
+                    map[ny + dy][nx + dx] = ' ';
+
+                }
+
+                map[ny + dy * 2][nx + dx * 2] = 'O';
+
+            }
+            else {
+
+                return;
+
+            }
+
+        }
+
+        nx += dx;
+
+        ny += dy;
+
+        nMove++;
+
+    }
+
+}
+
+
+void main()
+
+{
+
+    int key;
+    int x, y;
+
+    HideCursor();
+
+    nStage = 0;
+
+
+    for (; 1;) {
+
+        memcpy(map, CreateMap[nStage], sizeof(map));
+
+        for (y = 0; y < 18; y++) {
+
+            for (x = 0; x < 20; x++) {
+
+                if (map[y][x] == '@') {
+
+                    nx = x;
+
+                    ny = y;
+
+                    map[y][x] = ' ';
+
+                }
+
+            }
+
+        }
+
+        clrscr();
+
+        nMove = 0;
+
+
+
+        for (; 2;) {
+
+            DrawScreen();
+
+            key = getch();
+
+            if (key == 0xE0 || key == 0) {
+
+                key = getch();
+
+                switch (key) {
+
+                case LEFT:
+
+                case RIGHT:
+
+                case UP:
+
+                case DOWN:
+
+                    Move(key);
+
+                    break;
+
+                }
+
+            }
+            else {
+
+                key = tolower(key);
+
+                if (key == 'r') {
+
+                    break;
+
+                }
+
+                if (key == 'n') {
+
+                    if (nStage < MAXSTAGE - 1) {
+
+                        nStage++;
+
+                    }
+
+                    break;
+
+                }
+
+                if (key == 'p') {
+
+                    if (nStage > 0) {
+
+                        nStage--;
+
+                    }
+
+                    break;
+
+                }
+
+                if (key == 'q') {
+
+                    ViewCursor();
+
+                    exit(0);
+
+                }
+
+            }
+
+
+
+            if (TestEnd()) {
+
+                clrscr();
+
+                gotoxy(10, 10);
+
+                printf("%d 스테이지를 풀었습니다. 다음 스테이지로 이동합니다",
+
+                    nStage + 1);
+
+                Sleep(2000);
+
+                if (nStage < MAXSTAGE - 1) {
+
+                    nStage++;
+
+                }
+
+                break;
+
+            }
+
+        }
+
+    }
+
+}
+
+
 
