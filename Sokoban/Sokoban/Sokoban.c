@@ -1,17 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
-#include <conio.h>	//getch()
+#include <conio.h>	
 #include <windows.h> 
 
-void gotoxy(int x, int y)
-{
-    // x, y 좌표 설정
-    COORD position = { x, y };
-
-    // 커서 이동 함수
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
-}
 
 // 매크로로 상하좌우와 스테이지수 설정
 #define ESC 27
@@ -22,14 +14,20 @@ void gotoxy(int x, int y)
 #define DOWN 80
 #define MAXSTAGE 3
 
+// 전역변수 생성
+char map[18][21]; // 스테이지
+int stage;        // 몇번째 스테이지 인지
+int nx, ny;       // Player의 현재 위치
+int MoveCount;    // 움직인 횟수
 
-char map[18][21];
-int stage; // 몇번째 스테이지 인지
-int nx, ny; 
-int MoveCount; // 움직인 횟수
 
+
+//맵 생성 함수
 char CreateMap[MAXSTAGE][18][21] = {
      {
+      // # : 벽
+      // O : 바위
+      // & : 플레이어
 
      "####################",
      "####################",
@@ -39,9 +37,9 @@ char CreateMap[MAXSTAGE][18][21] = {
      "####################",
      "####################",
      "####################",
-     "##    O          *##",
-     "## &  O          *##",
-     "##    O          *##",
+     "#####   O     *#####",
+     "#####&  O     *#####",
+     "#####   O     *#####",
      "####################",
      "####################",
      "####################",
@@ -53,38 +51,38 @@ char CreateMap[MAXSTAGE][18][21] = {
      },
      {
 
-      "####################",
      "####################",
      "####################",
      "####################",
      "####################",
-     "#########* #########",
-     "#######      #######",
-     "#####          #####",
-     "###   ## O  ##   ###",
-     "##*   O   &  O   *##",
-     "###   ##  O ##   ###",
-     "#####          #####",
-     "#######      #######",
-     "######### *#########",
+     "####################",
+     "####################",
+     "#########*##########",
+     "######### ##########",
+     "#########O O  *#####",
+     "######*  O&##########",
+     "##########O#########",
+     "########## #########",
+     "##########*#########",
+     "####################",
      "####################",
      "####################",
      "####################",
      "####################"
      },
      {
-      "####################",
      "####################",
      "####################",
      "####################",
      "####################",
      "####################",
      "####################",
-     "####################",
-     "##    O          *##",
-     "## &  O          *##",
-     "##    O          *##",
-     "####################",
+     "#########  #########",
+     "########&O #########",
+     "#########O #########",
+     "######### O ########",
+     "########*O  ########",
+     "########** *########",
      "####################",
      "####################",
      "####################",
@@ -94,6 +92,7 @@ char CreateMap[MAXSTAGE][18][21] = {
      },
 };
 
+// 콘솔창에 커서 숨겨주고 나타내는 함수
 void HideCursor()
 {
     CONSOLE_CURSOR_INFO cursorInfo = { 0, };
@@ -109,7 +108,17 @@ void ViewCursor()
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }   //커서 보여주기
 
+//좌표지정 함수
+void gotoxy(int x, int y)
+{
+    // x, y 좌표 설정
+    COORD position = { x, y };
 
+    // 커서 이동 함수
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
+}   
+
+// 콘솔에 출력되는 값들
 void DrawScreen()
 
 {
@@ -138,29 +147,9 @@ void DrawScreen()
     gotoxy(32, 8); puts("D : 다음 스테이지");
     gotoxy(32, 10); printf("스테이지 : %d", stage + 1);
     gotoxy(32, 12); printf("이동 횟수 : %d", MoveCount);
-
 }
 
-BOOL TestEnd()
-{
-
-    int x, y;
-
-    for (y = 0; y < 18; y++) 
-    {
-        for (x = 0; x < 20; x++) 
-        {
-            if (CreateMap[stage][y][x] == '*' && map[y][x] != 'O') 
-            {
-                return FALSE;
-            }
-        }
-    }
-
-    return TRUE;
-
-}
-
+// Player & 바위 이동시켜주는 함수
 void Move(int key)  
 
 {
@@ -183,11 +172,11 @@ void Move(int key)
     }   // player 이동
 
 
-    if (map[ny + dy][nx + dx] != '#') 
+    if (map[ny + dy][nx + dx] != '#')   // Player & 벽 충돌 방지
     {
-        if (map[ny + dy][nx + dx] == 'O') 
+        if (map[ny + dy][nx + dx] == 'O')  // Player & 바위 충돌 방지
         {
-            if (map[ny + dy * 2][nx + dx * 2] == ' ' || map[ny + dy * 2][nx + dx * 2] == '*')
+            if (map[ny + dy * 2][nx + dx * 2] == ' ' || map[ny + dy * 2][nx + dx * 2] == '*') // 바위 & 벽 충돌 방지
             {
 
                 if (CreateMap[stage][ny + dy][nx + dx] == '*')
@@ -197,7 +186,8 @@ void Move(int key)
                 else {
                     map[ny + dy][nx + dx] = ' ';
                 }
-                map[ny + dy * 2][nx + dx * 2] = 'O';
+
+                map[ny + dy * 2][nx + dx * 2] = 'O';    // 바위 이동
             }
             else {
                 return;
@@ -209,7 +199,28 @@ void Move(int key)
     }
 }
 
+// 각 스테이지 클리어한 후의 값을 받는 논리함수(바위가 목표점에 도달 = 'True' / 도달하지 X = 'False')
+BOOL TestEnd()
+{
 
+    int x, y;
+
+    for (y = 0; y < 18; y++) 
+    {
+        for (x = 0; x < 20; x++) 
+        {
+            if (CreateMap[stage][y][x] == '*' && map[y][x] != 'O') // 바위가 목표점에 도달하지 못했을 경우 계속진행
+            {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE; // 바위가 목표점에 도달했을 때 종료
+
+}
+
+// Main 함수
 void main()
 {
     int key;
@@ -220,20 +231,18 @@ void main()
 
     while (1) {
 
-        memcpy(map, CreateMap[stage], sizeof(map));
+        memcpy(map, CreateMap[stage], sizeof(map)); // map 배열에 CreateMap 배열을 복사
 
         for (y = 0; y < 18; y++) {
-
             for (x = 0; x < 20; x++) {
-
                 if (map[y][x] == '&') {
-
-                    nx = x;
-                     
+                
+                    nx = x;                     
+                    
                     ny = y;
-
+                    
                     map[y][x] = ' ';
-
+                
                 }
 
             }
@@ -249,7 +258,7 @@ void main()
 
             key = _getch();
 
-            if (key == 0xE0 || key == 0) {
+            if (key == 0xE0 ) {
 
                 key = _getch();
 
@@ -292,27 +301,26 @@ void main()
             }
 
 
-
+            // 각 스테이지 클리어한 후에 실행
             if (TestEnd()) {
-
-                system("cls");
-
-                gotoxy(10, 10);
-
-                printf("%d번째 스테이지를 풀었습니다. 다음 스테이지로 이동합니다",  stage + 1);
-
-                Sleep(2000);
-
                 if (stage < MAXSTAGE - 1) {
-
+                    system("cls");
+                    gotoxy(10, 10);
+                    printf("%d번째 스테이지를 풀었습니다. 다음 스테이지로 이동합니다", stage + 1);
+                    Sleep(2000);
                     stage++;
-
                 }
-
+                else
+                {
+                    system("cls");
+                    gotoxy(29, 10);
+                    printf("All Clear~!");
+                    printf("\n\n\n\n\n\n\n\n");
+                    ViewCursor();
+                    exit(0);
+                }
                 break;
-
             }
-
         }
 
     }
